@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const app = require("./index");
 const debug = require("debug")("node-angular");
 const http = require("http");
