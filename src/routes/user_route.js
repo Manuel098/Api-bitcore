@@ -11,7 +11,7 @@ const checkAuth =require('../../midleware/check-auth');
 const globalToken = 'bitcore_nE';
 
 // Get all users
-router.get('', checkAuth, (res) => {
+router.get('', checkAuth, (req, res) => {
     userQuery = Users.find();
     userQuery.then(patients => {
         try {
@@ -35,7 +35,7 @@ router.get('', checkAuth, (res) => {
 });
 
 // signup users.
-router.post('/', (req, res) => {
+router.post('/signUp', (req, res) => {
     bcrypt.hash(req.body.password, 10).then(hash => {
         const User = new Users({
             user: req.body.user,
@@ -43,7 +43,10 @@ router.post('/', (req, res) => {
             password: hash,
         });
         const Mon = new Monedero({
-            Historial: [],
+            Historial: {
+                venta:[],
+                compra:[]
+            },
             cantidad:0,
             userId:User['_id'],
         });
@@ -77,7 +80,7 @@ router.post('/', (req, res) => {
 });
 
 // SignIn user
-router.get('/signIn', (req, res) => {
+router.post('/signIn', (req, res) => {
     let fetchedUser, getMon;
     Users.findOne({ email: req.body.email }).then(user => {
         if (!user)

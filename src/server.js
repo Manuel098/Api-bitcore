@@ -5,6 +5,8 @@ const express = require('express');
 const router = express.Router();
 const mongodb = require('mongodb');
 const socket = require('socket.io');
+const Users = require('../src/models/user_model');
+const Monedero = require('../src/models/monedero_model');
 
 const normalizePort = val => {
   var port = parseInt(val, 10);
@@ -59,7 +61,80 @@ server.listen(port);
 const io = socket.listen(server);
 
 io.sockets.on('connection', (socket) => {
-  socket.on('join', (data) => {
-      
+  let user;
+  console.log('Client connected ' + socket['id']);
+
+  socket.on('Subscribing', (data) => {
+    user = data;
+    socket.join(user['id']);
+    console.log('id: ' + user['id']);
+  });
+  if (user) {
+    socket.on('onCompra', (data) => {
+      Monedero.findOne({ _id: data['_id'] }).then(wallet => {
+        try {
+          wallet['Historial'][0]['compra'].push([
+            data['cant'],
+            new Date()
+          ]);
+          Monedero.findOneAndUpdate({ _id: data['_id'] }, { Historial: wallet['Historial'] }).then(asd => {
+            io.emit('onCompra',data['cant'],new Date());
+          });
+        }
+        catch (error) {
+          res.status(501).json({
+            message: 'Strange error'
+          });
+          console.log(error);
+        }
+      }).catch(error => {
+        console.log(error);
+        res.status(501).json({
+          message: 'Error from server'
+        });
+      });
+
+
+    });
+
+    socket.on('onVenta', (data) => {
+      Monedero.findOne({ _id: data['_id'] }).then(wallet => {
+        try {
+          wallet['Historial'][0]['venta'].push([
+            data['cant'],
+            new Date()
+          ]);
+          Monedero.findOneAndUpdate({ _id: data['_id'] }, { Historial: wallet['Historial'] }).then(asd => {
+            io.emit('onVenta',data['cant'],new Date());
+          });
+        }
+        catch (error) {
+          res.status(501).json({
+            message: 'Strange error'
+          });
+          console.log(error);
+        }
+      }).catch(error => {
+        console.log(error);
+        res.status(501).json({
+          message: 'Error from server'
+        });
+      });
+    });
+  }
+  socket.on("disconnect", () => {
+    if (user) {
+      Users.findOneAndUpdate({ _id: user['id'] }, { lastSession: new Date() }).then(updateUser => {
+        if (!updateUser) {
+          console.log('Error al actualizar compruebe su sesión');
+        }
+      })
+        .catch(error => {
+          console.log('Credenciales invalidas')
+        });
+      console.log('Client disconnected ' + user['name']);
+    } else {
+      console.log("Client disconnected " + socket['id']);
+    }
   });
 });

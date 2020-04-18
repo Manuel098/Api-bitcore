@@ -18,17 +18,18 @@
   },
   "homepage": "https://github.com/Manuel098/Api-bitcore#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "express-validator": "^6.4.0",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.6",
     "mongoose-unique-validator": "^2.0.2",
-    "socket.io": "^2.2.0",
-    "bcryptjs": "^2.4.3",
-    "express": "^4.17.1",
-    "body-parser": "^1.18.3",
-    "express-handlebars": "^3.1.0",
-    "express-validator": "^6.4.0",
     "morgan": "^1.9.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "request": "^2.88.2",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
