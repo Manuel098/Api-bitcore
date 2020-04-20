@@ -69,59 +69,51 @@ io.sockets.on('connection', (socket) => {
     socket.join(user['id']);
     console.log('id: ' + user['id']);
   });
-  if (user) {
-    socket.on('onCompra', (data) => {
-      Monedero.findOne({ _id: data['_id'] }).then(wallet => {
-        try {
-          wallet['Historial'][0]['compra'].push([
-            data['cant'],
-            new Date()
-          ]);
-          Monedero.findOneAndUpdate({ _id: data['_id'] }, { Historial: wallet['Historial'] }).then(asd => {
-            io.emit('onCompra',data['cant'],new Date());
-          });
-        }
-        catch (error) {
-          res.status(501).json({
-            message: 'Strange error'
-          });
-          console.log(error);
-        }
-      }).catch(error => {
-        console.log(error);
-        res.status(501).json({
-          message: 'Error from server'
+  // if (user) {
+  socket.on('onCompra', (data) => {
+    Monedero.findOne({ _id: data['id'] }).then(wallet => {
+      try {
+        wallet['Historial'][0]['compra'].push([
+          data['cant'],
+          new Date()
+        ]);
+
+        Monedero.findOneAndUpdate({ _id: data['id'] }, { Historial: wallet['Historial'] }).then(asd => {
+          io.emit('onCompra',{cant:data['cant'],date:new Date()});
         });
-      });
-
-
-    });
-
-    socket.on('onVenta', (data) => {
-      Monedero.findOne({ _id: data['_id'] }).then(wallet => {
-        try {
-          wallet['Historial'][0]['venta'].push([
-            data['cant'],
-            new Date()
-          ]);
-          Monedero.findOneAndUpdate({ _id: data['_id'] }, { Historial: wallet['Historial'] }).then(asd => {
-            io.emit('onVenta',data['cant'],new Date());
-          });
-        }
-        catch (error) {
-          res.status(501).json({
-            message: 'Strange error'
-          });
-          console.log(error);
-        }
-      }).catch(error => {
+      }
+      catch (error) {
+        console.log('Strange error');
         console.log(error);
-        res.status(501).json({
-          message: 'Error from server'
-        });
-      });
+      }
+    }).catch(error => {
+      console.log(error);
+      console.log('Error from server');
     });
-  }
+  });
+
+  socket.on('onVenta', (data) => {
+    Monedero.findOne({ _id: data['id'] }).then(wallet => {
+      try {
+        wallet['Historial'][0]['venta'].push([
+          data['cant'],
+          new Date()
+        ]);
+
+        Monedero.findOneAndUpdate({ _id: data['id'] }, { Historial: wallet['Historial'] }).then(asd => {
+          io.emit('onVenta',{cant:data['cant'],date:new Date()});
+        });
+      }
+      catch (error) {
+        console.log('Strange error');
+        console.log(error);
+      }
+    }).catch(error => {
+      console.log(error);
+      console.log('Error from server');
+    });
+  });
+  // }
   socket.on("disconnect", () => {
     if (user) {
       Users.findOneAndUpdate({ _id: user['id'] }, { lastSession: new Date() }).then(updateUser => {

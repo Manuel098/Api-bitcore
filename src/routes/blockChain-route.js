@@ -15,7 +15,7 @@ request({
     }
 });
 
-router.get('', checkAuth, (req, res) => {
+router.get('', (req, res) => {
     try {
         res.status(201).json({
             btcData: btcData

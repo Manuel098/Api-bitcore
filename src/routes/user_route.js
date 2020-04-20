@@ -50,7 +50,6 @@ router.post('/signUp', (req, res) => {
             cantidad:0,
             userId:User['_id'],
         });
-        console.log(User);
         Mon.save();
         User.save().then(User => {
             const token = jwt.sign(
@@ -113,6 +112,24 @@ router.post('/signIn', (req, res) => {
         });
     })
     .catch(err => {
+        return res.status(501).json({
+            message: "Credenciales invalidas"
+        });
+    });
+});
+
+router.get('/logOut/:id',(req,res)=>{
+    Users.findOneAndUpdate({ _id: req.params.id }, {lastSession: new Date()}).then(user => {
+        if (!user) {
+            return res.status(501).json({
+                message: 'Error al actualizar compruebe su sesión'
+            });
+        }
+        res.status(201).json({
+            message:'UpdateCompleate'
+        });
+    })
+    .catch(error => {
         return res.status(501).json({
             message: "Credenciales invalidas"
         });
